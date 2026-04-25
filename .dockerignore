@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+.vscode
+.idea
+coverage
+dist
+tmp
+*.txt
+serviceAccountKey.json
+file.json

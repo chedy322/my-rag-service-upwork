@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --primary: #ffffff;
+            --primary-foreground: #09090b;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Header --- */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo { font-weight: 600; font-size: 1.1rem; letter-spacing: -0.02em; }
+        
+        .topbar-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 99px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+        .topbar-badge.live { color: var(--success); border-color: rgba(34, 197, 94, 0.2); } 
+        /*------- new header  */
+
+        .main-nav { display: flex; gap: 0.5rem; }
+    .nav-btn {
+        background: transparent; border: none; color: var(--text-muted);
+        padding: 0.5rem 1rem; cursor: pointer; font-family: inherit;
+        font-size: 0.9rem; border-radius: 6px; transition: all 0.2s;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--surface); }
+    .nav-btn.active { color: var(--primary); background: var(--surface); }
+
+    /* View Toggling */
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* Log specific styles */
+    .log-item { 
+        padding: 1rem; border-bottom: 1px solid var(--border); 
+        display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr; gap: 1rem;
+        font-size: 0.85rem;
+    }
+    .log-timestamp { color: var(--text-muted); font-family: monospace; }
+    .event-tag { 
+        padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;
+        background: var(--border); color: var(--text);
+    }
+        /* --- Layout --- */
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card label { color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.5rem; }
+        .stat-card span { font-size: 1.5rem; font-weight: 500; }
+
+        /* --- Upload Zone --- */
+        #drop-zone {
+            border: 1px dashed var(--border);
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin-bottom: 3rem;
+        }
+
+        #drop-zone:hover, #drop-zone.drag-over {
+            border-color: var(--text-muted);
+            background: #1c1c20;
+        }
+
+        #drop-zone p { color: var(--text-muted); margin-bottom: 0; }
+        .upload-btn {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        /* --- Table --- */
+        .table-container {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            text-align: left;
+            background: #1c1c20;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+
+        .file-name-cell { display: flex; align-items: center; gap: 0.75rem; }
+        .chunks-badge {
+            background: #27272a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .btn-del {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .btn-del:hover { color: var(--danger); }
+
+        .btn-view {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-view:hover {
+    color: var(--primary); /* Changes from red to white/primary on hover */
+    transform: scale(1.1);
+}
+        /* --- Progress/Toast --- */
+        #progress-section {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 320px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: none;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        #toasts { position: fixed; top: 5rem; right: 2rem; z-index: 100; }
+        .toast {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* --- Modal Backdrop --- */
+        #modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #modal-backdrop.open { display: flex; }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+   
+    <div style="display: flex; align-items: center; gap: 2rem;">
+        <div class="logo">Admin Console</div>
+        <nav class="main-nav">
+            <button class="nav-btn active" onclick="showView('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showView('logs')">Logs</button>
+        </nav>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+        <div id="status-badge" class="topbar-badge">● checking...</div>
+        <div id="doc-count-badge" class="topbar-badge">0 documents</div>
+    </div>
+</header>
+
+<main>
+    <section id="view-dashboard" class="view-section active">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <label>Documents</label>
+            <span id="stat-docs">0</span>
+        </div>
+        <div class="stat-card">
+            <label>Vector Chunks</label>
+            <span id="stat-chunks">0</span>
+        </div>
+        <div class="stat-card">
+            <label>Vector Store</label>
+            <span id="stat-store">Connecting</span>
+            <div id="stat-store-sub" style="font-size: 0.7rem; color: var(--text-muted)">...</div>
+        </div>
+    </div>
+
+    <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <button class="upload-btn">Upload PDF</button>
+        <p>or drag and drop files here</p>
+        <input type="file" id="file-input" multiple accept=".pdf" style="display:none">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th>Identifier</th>
+                    <th>File</th>
+                    <th style="width: 50px;"></th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody id="doc-tbody">
+                </tbody>
+        </table>
+    </div>
+</main>
+
+<div id="toasts"></div>
+<div id="progress-section"></div>
+
+<div id="modal-backdrop">
+    <div class="modal">
+        <h3 style="margin-top:0">Delete Document?</h3>
+        <p id="modal-desc" style="color:var(--text-muted); font-size:0.9rem; line-height:1.5"></p>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:2rem">
+            <button onclick="closeModal()" style="background:transparent; color:white; border:none; cursor:pointer">Cancel</button>
+            <button id="modal-confirm-btn" style="background:var(--danger); color:white; border:none; padding:0.5rem 1rem; border-radius:6px; cursor:pointer">Delete</button>
+        </div>
+    </div>
+</div>
+</section>
+
+<section id="view-logs" class="view-section">
+        <div class="table-container">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                <h3 style="margin:0">Audit Trail</h3>
+                <button onclick="loadLogs()" class="topbar-badge" style="cursor:pointer">Refresh Logs</button>
+            </div>
+            <div id="logs-container">
+                <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Click refresh to load logs...</div>
+            </div>
+        </div>
+    </section>
+
+<script src="/admin.js"></script>
+</body>
+</html>
