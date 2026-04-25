@@ -19,6 +19,7 @@ FROM node:20-alpine AS runtime
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /usr/src/app
 COPY --chown=appuser:appgroup --from=build /usr/src/app ./
+RUN mkdir -p uploads && chown -R appuser:appgroup uploads
 ENV PORT=3000
 EXPOSE 3000
 USER appuser
