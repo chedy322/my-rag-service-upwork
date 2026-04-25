@@ -1,8 +1,6 @@
 // import { firebaseConfig } from "./firebaseConfig";
 
 async function startAuth() {
-    console.log("hello")
-    // console.log(firebaseConfig)
     firebase.initializeApp({
     apiKey: "AIzaSyBT48SncxcmQOKbORMkp0-awKHYoIjDil8",
     authDomain: "ragsystem-d497a.firebaseapp.com",
