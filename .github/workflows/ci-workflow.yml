@@ -89,7 +89,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment: Production
     env: 
-      IMAGE: docker.io/${{ secrets.DOCKERUSERNAME.repository_owner }}/${{ github.repository }}:${{ github.sha }}
+      IMAGE: docker.io/${{ secrets.DOCKERUSERNAME }}/${{ github.repository }}:${{ github.sha }}
       PROD_IMAGE: docker.io/${{ secrets.DOCKERUSERNAME }}/${{ github.repository }}:prod
     steps:
       - name: Login to docker 
