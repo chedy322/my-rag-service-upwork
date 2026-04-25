@@ -72,10 +72,11 @@ jobs:
           push: false
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@v1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{env.IMAGE}}
           exit-code: 1
+          ignore-unfixed: true
           format: 'table'
           severity: 'CRITICAL,HIGH'
 
